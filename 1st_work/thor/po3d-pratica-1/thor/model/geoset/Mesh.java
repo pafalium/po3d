@@ -165,7 +165,41 @@ public abstract class Mesh extends Object {
 		 * * _maxVertex -> contains the max values of each coordinate
 		 * * _minVertex -> contains the min values of each coordinate
 		 */
-		return new Point3D.Double();
+	    final double totalArea = getSurfaceArea();
+	    final int maxSamplesNum = _faces.size() * 10;
+	    Vector3D meanVertex = new Vector3D();
+	    int ignoredFaces = 0;
+	    int sampleCount = 0;
+	    for (Face f : _faces) {
+	        double area = 0.0;
+	        if (f.Vertices.size() != 3) {
+	            ignoredFaces++;
+	            continue;
+	        }
+            area = triangleArea(f);
+            int triSamples = (int) Math.floor((area / totalArea) * maxSamplesNum);
+            Vector3D u = Vector3D.sub(_vertices.get(f.Vertices.get(1)), _vertices.get(f.Vertices.get(0)));
+            Vector3D v = Vector3D.sub(_vertices.get(f.Vertices.get(2)), _vertices.get(f.Vertices.get(0)));
+            for (int i=0; i<triSamples; ++i) {
+                double sample_u = Math.random();
+                double sample_v = Math.random();
+                boolean inside = (1 - sample_u - sample_v) > 0;
+                if (inside) {
+                    sampleCount++;
+                    Vector3D sample = new Vector3D(
+                            u.getX()*sample_u+v.getX()*sample_v,
+                            u.getY()*sample_u+v.getY()*sample_v,
+                            u.getZ()*sample_u+v.getZ()*sample_v);
+                    meanVertex.add(sample);
+                }
+            }
+	        
+	    }
+	    double factor = 1.0 / sampleCount;
+	    meanVertex.mul(factor);
+	    System.out.println("Sample Size: "+sampleCount+", Max Sample Size: "+maxSamplesNum+".");
+	    System.out.println("Barycenter ignored "+ignoredFaces+" faces.");
+		return meanVertex;
 	}
 	
 	public boolean isManifold() {
