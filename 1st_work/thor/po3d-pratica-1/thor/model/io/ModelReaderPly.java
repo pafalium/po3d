@@ -21,7 +21,7 @@ class ModelReaderPly extends ModelReader {
 	public BufferedModel read(String filename) throws IOException {
 		/*
 		 * ================================================================ 
-		 * TODO: PO3D Pratica 1 - Polygon File Format (PLY)
+		 * : PO3D Pratica 1 - Polygon File Format (PLY)
 		 * Add here the code to read a PLY file
 		 * The file "thor.model.io.ModelReaderPly.java" serves as example of file reading
 		 *  

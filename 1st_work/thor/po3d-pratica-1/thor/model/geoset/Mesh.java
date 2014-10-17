@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 
+import quickhull3d.QuickHull3D;
 import thor.graphics.Vector3D;
 import thor.graphics.Point3D;
 
@@ -160,43 +161,84 @@ public abstract class Mesh extends Object {
 	}
 	
 	public Point3D getBarycenter() {
-		/* TODO: PO3D Pratica 1 - calculate the barycenter of the mesh
+		/* : PO3D Pratica 1 - calculate the barycenter of the mesh
 		 * * Point3D.Double(x, y, z) -> creates a new Point3D with doubles
 		 * * _maxVertex -> contains the max values of each coordinate
 		 * * _minVertex -> contains the min values of each coordinate
 		 */
+	    /*
+	     * In this barycenter implementation an approximate uniform point sample
+	     * is made in the mesh's surface. The barycenter is then the mean
+	     * point of the sample.
+	     */
 	    final double totalArea = getSurfaceArea();
-	    final int maxSamplesNum = _faces.size() * 10;
-	    Vector3D meanVertex = new Vector3D();
-	    int ignoredFaces = 0;
-	    int sampleCount = 0;
+	    final int SAMPLES_MULTIPLIER = 10;
+	    final int maxSamplesNum = _faces.size() * SAMPLES_MULTIPLIER;
+	    Vector3D meanVertex = new Vector3D(0.0,0.0,0.0);
+	    int ignoredFaces = 0; //number of non triangular faces
+	    int sampleCount = 0; //actual number of samples used (some are dropped)
 	    for (Face f : _faces) {
-	        double area = 0.0;
+	        //debug information (we only work with triangles)
 	        if (f.Vertices.size() != 3) {
 	            ignoredFaces++;
 	            continue;
 	        }
-            area = triangleArea(f);
-            int triSamples = (int) Math.floor((area / totalArea) * maxSamplesNum);
+	        /*
+	         * Compute the number of samples for the current face based
+	         * in the ratio between it's area and the area of the whole
+	         * mesh.
+	         */
+	        double faceArea = 0.0;
+            faceArea = triangleArea(f);
+            int triSamples = (int) Math.floor((faceArea / totalArea) * maxSamplesNum);
+            /* Compute vectors u and v that start in the faces first vertex
+             * and end on one of the other two vertices of the face.
+             * These vectors are going to be used as a basis for the plane 
+             * that contains the triangle. With this one can get random
+             * points in the plane by using two random number as coordinates.
+             * */
             Vector3D u = Vector3D.sub(_vertices.get(f.Vertices.get(1)), _vertices.get(f.Vertices.get(0)));
             Vector3D v = Vector3D.sub(_vertices.get(f.Vertices.get(2)), _vertices.get(f.Vertices.get(0)));
+            // The "origin" of the plane in which the samples will be taken.
+            Vertex origin = _vertices.get(f.Vertices.get(0));
             for (int i=0; i<triSamples; ++i) {
+                /* Taking two random numbers as coordinates of the new
+                 * sample.
+                 */
                 double sample_u = Math.random();
                 double sample_v = Math.random();
+                /* Check if the sample is inside the triangle.
+                 * Since Math.random() returns numbers inside the interval
+                 * [0.0 1.0[ it is only necessary to check if the sample
+                 * is below the hypotenuse of the triangle.
+                 *  v
+                 *  1x\
+                 *   | \
+                 *   |  \
+                 *  0x---x
+                 *  0    1 u
+                 */
                 boolean inside = (1 - sample_u - sample_v) > 0;
                 if (inside) {
                     sampleCount++;
-                    Vector3D sample = new Vector3D(
-                            u.getX()*sample_u+v.getX()*sample_v,
-                            u.getY()*sample_u+v.getY()*sample_v,
-                            u.getZ()*sample_u+v.getZ()*sample_v);
+                    // Compute the sample's position in the plane.
+                    Vector3D sample = Vector3D.add(new Vector3D(origin.getX(),origin.getY(),origin.getZ()), 
+                                                    new Vector3D(
+                                                        u.getX()*sample_u+v.getX()*sample_v,
+                                                        u.getY()*sample_u+v.getY()*sample_v,
+                                                        u.getZ()*sample_u+v.getZ()*sample_v));
+                    // Add the sample's position to the meanVertex accumulator.
                     meanVertex.add(sample);
                 }
             }
 	        
 	    }
-	    double factor = 1.0 / sampleCount;
+	    /* Compute the mean point of the sample by dividing the
+	     * accumulator by the sample size.
+	     */
+	    double factor = sampleCount != 0 ? 1.0 / sampleCount : 1.0;//if no sample was taken revert barycenter to origin.
 	    meanVertex.mul(factor);
+	    // Print debug information.
 	    System.out.println("Sample Size: "+sampleCount+", Max Sample Size: "+maxSamplesNum+".");
 	    System.out.println("Barycenter ignored "+ignoredFaces+" faces.");
 		return meanVertex;
@@ -208,16 +250,24 @@ public abstract class Mesh extends Object {
 		 * * _vertices -> contains a list of all vertices of the mesh
 		 * * _faces -> contains the list of the id of the vertices that from it
 		 */
+	    /* In this implementation a mesh for deciding if a mesh is manifold
+	     * two checks are made:
+	     *  - All edges must belong to at most two faces, otherwise that would be 
+	     *  singular edges;
+	     *  - All faces incident in each vertex must form one and only one
+	     *  open or closed fan. 
+	     */
 		// Check if each edge has at most two incident faces.
-		Map<Edge, Integer> edgeFaceNumber = new TreeMap<Edge, Integer>();
-		for (Face face : _faces) {
-			for (int edge = 0, size = face.Vertices.size(); edge < size; ++edge) {
+		// Count how many faces have each edge. (the vertex order of the edge is ignored)
+	    Map<Edge, Integer> edgeFaceNumber = new TreeMap<Edge, Integer>();
+		for (Face face : _faces) {//for all faces
+			for (int edge = 0, size = face.Vertices.size(); edge < size; ++edge) {//for all edges
 				int v1 = face.Vertices.get(edge);
 				int v2 = face.Vertices.get((edge+1)%size);
 				Edge e = new Edge(v1, v2);
 				if (!edgeFaceNumber.containsKey(e))
 					edgeFaceNumber.put(e, 0);
-				edgeFaceNumber.put(e, edgeFaceNumber.get(e)+1);
+				edgeFaceNumber.put(e, edgeFaceNumber.get(e)+1);//add one to the edge's faces
 			}
 		}
 		boolean edgesBelongToAtMostTwoFaces = true;
@@ -226,39 +276,54 @@ public abstract class Mesh extends Object {
 				edgesBelongToAtMostTwoFaces = false;
 		}
 		// For each vertex check if adjacent faces for a open or closed fan
+		/*
+		 * This check is done in two phases:
+		 *  - The incident faces on each vertex are collected with the adjacent vertices stored;
+		 *  - It is checked that all adjacent faces of each vertex form a fan.
+		 */
 		List<VertexAdjacenciesInFace>[] vertsAdjs = new List[_vertices.size()];
 		for (int i=vertsAdjs.length-1;i>=0;i--) {//init vertex adjacencies
 			vertsAdjs[i] = new ArrayList<VertexAdjacenciesInFace>();
 		}
 		for (int faceInd=_faces.size()-1;faceInd>=0;faceInd--) {//fill vertex adjacencies
-			final int faceDegree = _faces.get(faceInd).Vertices.size();
-			Face f = _faces.get(faceInd);
-			for (int vertInd=0; vertInd<faceDegree; vertInd++) {
-				int vert = f.Vertices.get(vertInd);
+		    Face f = _faces.get(faceInd);
+			final int faceVertexNum = _faces.get(faceInd).Vertices.size();
+			for (int vertInd=0; vertInd<faceVertexNum; vertInd++) {
+				/* The face is incident on it's vertices and 
+				 * for each of them the adjacent vertices are 
+				 * the previous and the next.
+			     */
+			    int vert = f.Vertices.get(vertInd);
 				vertsAdjs[vert].add(new VertexAdjacenciesInFace(faceInd, 
-																f.Vertices.get((vertInd+1)%faceDegree), 
-																f.Vertices.get((vertInd+faceDegree-1)%faceDegree)));
+																f.Vertices.get((vertInd+1)%faceVertexNum), 
+																f.Vertices.get((vertInd+faceVertexNum-1)%faceVertexNum)));
 			}
 		}
 		boolean facesAroundVerticesFormOneFan = true;
 		for (List<VertexAdjacenciesInFace> vertAdjsList : vertsAdjs) {
-			DisjointSets faceConnectivity = new DisjointSets(vertAdjsList.size());
+			// Each set in the DisjointSets represents one fan.
+		    DisjointSets faceConnectivity = new DisjointSets(vertAdjsList.size());
 			for (int f1=0; f1<vertAdjsList.size(); f1++) {
 				for (int f2=0; f2<vertAdjsList.size(); f2++) {
 					if (f1 == f2) continue;
+					/* If two faces are adjacent join the sets they belong
+					 * to if not already joined.
+					*/
 					if (adjacentFacesOnVertex(vertAdjsList.get(f1), vertAdjsList.get(f2))) {
-						int f1Root = faceConnectivity.find(f1);
+						// get the set for each face
+					    int f1Root = faceConnectivity.find(f1);
 						int f2Root = faceConnectivity.find(f2);
+						// join then if not the same
 						if (f1Root == f2Root) continue; //faces already connected
 						faceConnectivity.union(f1Root, f2Root);
 					}
 				}
 			}
+			// Check if there is indeed only one fan for the vertex.
 			if (faceConnectivity.countSets() > 1) {
 			    facesAroundVerticesFormOneFan = false;
 			}
 		}
-		
 		
 		return edgesBelongToAtMostTwoFaces && facesAroundVerticesFormOneFan;
 	}
@@ -281,6 +346,11 @@ public abstract class Mesh extends Object {
 		 * * _vertices -> contains a list of all vertices of the mesh
 		 * * _faces -> contains the list of the id of the vertices that from it
 		 */
+	    /*
+	     * This implementation uses Heron's Formula to compute the area each triangle
+	     * of the mesh. It also computes the area of convex quads which can be 
+	     * safely decomposed in two triangles of which the areas are summed.
+	     */
 		double totalArea = 0.0;
 		int quads = 0; int tris = 0; int other = 0;
 		for (Face face : _faces) {
@@ -327,10 +397,41 @@ public abstract class Mesh extends Object {
 	}
 	
 	public Mesh getConvexHull() {
-		/* TODO: PO3D Pratica 1 - create and return the convex hull
+		/* : PO3D Pratica 1 - create and return the convex hull
 		 * return a new mesh that is the convex hull of the original
 		 */
-		return null;
+	    /*
+	     * Using QuickHull3D implementation.
+	     */
+	    try {
+    	    quickhull3d.Point3d[] points = new quickhull3d.Point3d[_vertices.size()];
+    	    for(int i = 0; i<_vertices.size(); ++i) {
+    	        Vertex vert = _vertices.get(i);
+    	        points[i] = new quickhull3d.Point3d(vert.x,vert.y,vert.z);
+    	    }
+    	    quickhull3d.QuickHull3D qhull = new QuickHull3D();
+    	    qhull.build(points);
+    	    quickhull3d.Point3d[] vertices = qhull.getVertices();
+    	    int[][] faces = qhull.getFaces();
+    	    BufferedMesh convexHull = new BufferedMesh();
+    	    for (quickhull3d.Point3d point : vertices) {
+    	        convexHull.addVertex(point.x, point.y, point.z);
+    	    }
+    	    for (int face=0; face<faces.length; ++face) {
+    	        List<Integer> v = new ArrayList<Integer>(); // vertices id's
+                List<Integer> vt = new ArrayList<Integer>();// texture coordinates id's
+                List<Float> vn = new ArrayList<Float>();// normal id's
+                for(int vertId : faces[face]) {
+                    v.add(vertId);
+                }
+                convexHull.addFace(v, vt, vn);
+    	    }
+    	    
+    		return convexHull;
+	    } catch (IllegalArgumentException ex) {
+	        System.out.println("QuickHull3D failed. Message: "+ex.getMessage());
+	        return null;
+	    }
 	}
 }
 
@@ -372,6 +473,8 @@ class Edge implements Comparable<Edge>{
 /**
  * Container for a vertex's adjacent vertices in a face.
  * A vertex is adjacent to other if they are connected by an edge.
+ * A vertex has exactly two adjacent vertices within a face since
+ * it only appears once in it.
  */
 class VertexAdjacenciesInFace {
     /**Vertex index of one adjacent vertex.*/
