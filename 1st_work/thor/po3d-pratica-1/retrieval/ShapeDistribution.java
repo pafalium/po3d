@@ -1,6 +1,8 @@
 package retrieval;
 
+import thor.graphics.Point3D;
 import thor.model.geoset.*;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -18,15 +20,21 @@ public class ShapeDistribution {
 			
 		float[] resultSamples = new float[N];
 		
+		UniformMeshSurfaceSampler pointSampler = new UniformMeshSurfaceSampler(m);
+		
 		for(int i = 0; i < N; i++){
 			// Get N samples
-			List<Vertex> samplesToProcess = new ArrayList<Vertex>();
+			List<Point3D> samplesToProcess = new ArrayList<Point3D>();
 			switch(sfp){
 				case D1: break;
 
 				case D2: break;
 				
 				case A3:
+				    //Example
+				    samplesToProcess.add(pointSampler.getPoint());
+				    samplesToProcess.add(pointSampler.getPoint());
+				    samplesToProcess.add(pointSampler.getPoint());
 					
 				case D3: break;
 
@@ -38,7 +46,7 @@ public class ShapeDistribution {
 		return resultSamples;
 	}
 	
-	public float ShapeFunction(shapeFunctionType sfp, List<Vertex> vertices){
+	public float ShapeFunction(shapeFunctionType sfp, List<Point3D> vertices){
 		
 		switch(sfp){
 			case A3: break;
@@ -75,3 +83,4 @@ public class ShapeDistribution {
 		
 	}
 }
+
