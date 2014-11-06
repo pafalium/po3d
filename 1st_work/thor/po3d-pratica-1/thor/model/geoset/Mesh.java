@@ -372,14 +372,14 @@ public abstract class Mesh extends Object {
 		return totalArea;
 	}
 	
-	private double triangleArea(final Face face) {
+	public double triangleArea(final Face face) {
 		final Vertex v1 = _vertices.get(face.Vertices.get(0));
 		final Vertex v2 = _vertices.get(face.Vertices.get(1));
 		final Vertex v3 = _vertices.get(face.Vertices.get(2));
 		return heronFormula(v1, v2, v3);
 	}
 
-	private double convexQuadArea(final Face face) {
+	public double convexQuadArea(final Face face) {
 		final Vertex v1 = _vertices.get(face.Vertices.get(0));
 		final Vertex v2 = _vertices.get(face.Vertices.get(1));
 		final Vertex v3 = _vertices.get(face.Vertices.get(2));
