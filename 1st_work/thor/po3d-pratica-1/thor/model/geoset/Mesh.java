@@ -281,7 +281,8 @@ public abstract class Mesh extends Object {
 		 *  - The incident faces on each vertex are collected with the adjacent vertices stored;
 		 *  - It is checked that all adjacent faces of each vertex form a fan.
 		 */
-		List<VertexAdjacenciesInFace>[] vertsAdjs = new List[_vertices.size()];
+		@SuppressWarnings("unchecked")
+        List<VertexAdjacenciesInFace>[] vertsAdjs = new List[_vertices.size()];
 		for (int i=vertsAdjs.length-1;i>=0;i--) {//init vertex adjacencies
 			vertsAdjs[i] = new ArrayList<VertexAdjacenciesInFace>();
 		}
@@ -387,7 +388,7 @@ public abstract class Mesh extends Object {
 		return heronFormula(v1, v2, v3) + heronFormula(v3, v4, v1);
 	}
 	
-	private double heronFormula(final Vertex v1, final Vertex v2, final Vertex v3) {
+	public double heronFormula(final Vertex v1, final Vertex v2, final Vertex v3) {
 		final double a =  Vector3D.distance(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 		final double b =  Vector3D.distance(v2.x, v2.y, v2.z, v3.x, v3.y, v3.z);
 		final double c =  Vector3D.distance(v3.x, v3.y, v3.z, v1.x, v1.y, v1.z);
