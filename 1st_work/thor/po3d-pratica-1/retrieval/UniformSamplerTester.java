@@ -21,6 +21,7 @@ public class UniformSamplerTester {
         String modelFilename = args[0];
         String outputImageFile = modelFilename + ".png";
         String outputPointCloudFile = modelFilename + ".cloud" + ".png";
+        
         Model model = ModelIO.read(new File(modelFilename));
         Normalize.translation(model);
         Normalize.scale(model);
@@ -32,17 +33,19 @@ public class UniformSamplerTester {
         ImageIO.write(view, "png", new File(outputImageFile));
         
         UniformMeshSurfaceSampler sampler = new UniformMeshSurfaceSampler(model.getMeshes().get(0));
-        final int numPoints = 100000;
+        final int numPoints = 10000;
         List<Point3D> points = new ArrayList<Point3D>(numPoints);
         for (int i=0; i<numPoints; ++i) {
             points.add(sampler.getPoint());
         }
         System.out.println("Points collected by sampler: "+points.size());
+        
         Model cloudModel = new PointCloudModel(points);
         Scene scenePointCloud = new Scene();
         scenePointCloud.setDimensions(2000, 2000);
         scenePointCloud.addDrawable(cloudModel);
         BufferedImage cloudView = scenePointCloud.extractView();
+        
         ImageIO.write(cloudView, "png", new File(outputPointCloudFile));
         
     }
@@ -57,6 +60,7 @@ class PointCloudModel extends Model {
         _pointCloud = points;
     }
     
+    @Override
     public void draw(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
         
@@ -71,6 +75,7 @@ class PointCloudModel extends Model {
         gl.glScalef(0.5f, 0.5f, 0.5f);
         
         //Actually render the point cloud.
+        //gl.glColor3f(0.5f, 0.9f, 0.2f);
         gl.glBegin(GL2.GL_POINTS);
         for(Point3D p : _pointCloud) {
             gl.glVertex3d(p.getX(), p.getY(), p.getZ());

@@ -120,7 +120,8 @@ public class UniformMeshSurfaceSampler {
     }
     
     /**
-     * Get a random point from the surface of the mesh.
+     * Get a random point from the surface of the mesh using the method
+     * described in the Shape Distributions paper.
      * @return a new random point on the mesh's surface
      */
     public Point3D getPoint() {
@@ -131,7 +132,9 @@ public class UniformMeshSurfaceSampler {
     
     /**
      * Get a list with the specified number of random 
-     *  points from the mesh's surface.
+     *  points from the mesh's surface. This takes a number of sample points
+     *  for each face of the mesh considering the ratio between the area of 
+     *  the face and the total area of the mesh.
      * @param numSamples the number of points to be gathered
      * @return the points
      */
@@ -149,8 +152,8 @@ public class UniformMeshSurfaceSampler {
     }
     
     /**
-     * Program that performs some tests on the UniformMeshSurfaceSampler's
-     * functionality.
+     * Program that performs some tests on the UniformMeshSurfaceSampler's binary search method.
+     * 
      */
     public static void main(String[] args) {
         MeshMock mock = new MeshMock();
