@@ -68,7 +68,7 @@ public class ShapeDistribution {
 			    Vector3D v0_2 = Vector3D.sub(vertices.get(2), vertices.get(0));
 			    v0_1.normalize();
 			    v0_2.normalize();
-			    return v0_1.DotProduct3(v0_1);
+			    return v0_1.DotProduct3(v0_2);
 
 			case D1:
 

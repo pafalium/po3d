@@ -388,7 +388,7 @@ public abstract class Mesh extends Object {
 		return heronFormula(v1, v2, v3) + heronFormula(v3, v4, v1);
 	}
 	
-	public double heronFormula(final Vertex v1, final Vertex v2, final Vertex v3) {
+	public static double heronFormula(final Vertex v1, final Vertex v2, final Vertex v3) {
 		final double a =  Vector3D.distance(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 		final double b =  Vector3D.distance(v2.x, v2.y, v2.z, v3.x, v3.y, v3.z);
 		final double c =  Vector3D.distance(v3.x, v3.y, v3.z, v1.x, v1.y, v1.z);
