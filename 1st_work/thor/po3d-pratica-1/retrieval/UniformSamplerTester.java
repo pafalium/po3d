@@ -19,6 +19,7 @@ import thor.modelanalysis.utils.Scene;
 public class UniformSamplerTester {
     public static void main(String[] args) throws IllegalArgumentException, IOException {
         String modelFilename = args[0];
+        
         String outputImageFile = modelFilename + ".png";
         String outputPointCloudFile = modelFilename + ".cloud" + ".png";
         
@@ -27,27 +28,27 @@ public class UniformSamplerTester {
         Normalize.scale(model);
         Normalize.rotation(model);
         
+        //Render model view.
         Scene scene = new Scene();
         scene.addDrawable(model);
         BufferedImage view = scene.extractView();
         ImageIO.write(view, "png", new File(outputImageFile));
         
+        //Generate surface point cloud.
         UniformMeshSurfaceSampler sampler = new UniformMeshSurfaceSampler(model.getMeshes().get(0));
         final int numPoints = 10000;
         List<Point3D> points = new ArrayList<Point3D>(numPoints);
         for (int i=0; i<numPoints; ++i) {
             points.add(sampler.getPoint());
         }
-        System.out.println("Points collected by sampler: "+points.size());
-        
+
+        //Render the point cloud
         Model cloudModel = new PointCloudModel(points);
         Scene scenePointCloud = new Scene();
         scenePointCloud.setDimensions(2000, 2000);
         scenePointCloud.addDrawable(cloudModel);
         BufferedImage cloudView = scenePointCloud.extractView();
-        
         ImageIO.write(cloudView, "png", new File(outputPointCloudFile));
-        
     }
 }
 
