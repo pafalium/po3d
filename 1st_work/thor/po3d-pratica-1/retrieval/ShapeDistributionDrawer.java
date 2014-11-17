@@ -45,13 +45,16 @@ public class ShapeDistributionDrawer {
         ArrayList<Point3D> vertices = new ArrayList<Point3D>(vertexNum+2);
         final double binValueScale = 1.0 / maxBinValue;
         final double binXPosScale = 1.0 / bins.size();
-        vertices.add(new Vertex(0.0,0.0,0.0));
+        Vertex orig = new Vertex(-1.0,-1.0,0.0);
+        vertices.add(orig);
         for (int bin=0; bin<bins.size(); bin++) {
             Vertex binPoint = new Vertex((bin+0.5)*binXPosScale,bins.get(bin)*binValueScale,0.0); 
+            binPoint.mul(2.0);
+            binPoint.add(orig);
             vertices.add(binPoint);
             vertices.add(binPoint);
         }
-        vertices.add(new Vertex((bins.size()+1)*binXPosScale,0.0,0.0));
+        vertices.add(new Vertex((bins.size()+1)*binXPosScale,-1.0,0.0));
         
         //Render the distribution.
         LineModel model = new LineModel(vertices, colors);
