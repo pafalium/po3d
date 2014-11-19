@@ -12,7 +12,7 @@ public enum ShapeFunction {
         public double[] computeValues(int numValues, Point3D[] points) {
             // Calculate the cosine of the angle between 0->1 and 0->2.
             // The returned value is contained in [-1, 1].
-            assert points.length == numValues * 3;
+            assert points.length >= numValues * 3;
             double[] results = new double[numValues];
             for (int i=0; i<numValues; i++) {
                 Vector3D v0_1 = Vector3D.sub(points[i*3+1], points[i*3]);
@@ -23,13 +23,24 @@ public enum ShapeFunction {
             }
             return results;
         }
+
+        @Override
+        public double getMaxBoundary() { return -1.0; }
+
+        @Override
+        public double getMinBoundary() { return 1.0; }
+
+        @Override
+        public int getPointsPerValue() {
+            return 3;
+        }
     },
     
     D2 {
         @Override
         public double[] computeValues(int numValues, Point3D[] points) {
             // Calculate (the line root of) the length of the line.
-            assert points.length == numValues * 2;
+            assert points.length >= numValues * 2;
             double[] results = new double[numValues];
             for(int i=0; i<numValues; i++) {
                results[i] = Point3D.distance(points[i*2].getX(), points[i*2].getY(), points[i*2].getZ(),
@@ -37,13 +48,24 @@ public enum ShapeFunction {
             }
             return results;
         }
+        
+        @Override
+        public double getMaxBoundary() { return 0.0; }
+
+        @Override
+        public double getMinBoundary() { return Math.sqrt(3); }
+        
+        @Override
+        public int getPointsPerValue() {
+            return 2;
+        }
     },
     
     D3 {
         @Override
         public double[] computeValues(int numValues, Point3D[] points) {
             // Calculate the square root of the area of the triangle.
-            assert points.length == numValues * 3;
+            assert points.length >= numValues * 3;
             double[] results = new double[numValues];
             for (int i=0; i<numValues; i++) {
                 Vertex v1 = new Vertex(points[i*3+0].getX(), points[i*3+0].getY(), points[i*3+0].getZ()); 
@@ -53,13 +75,24 @@ public enum ShapeFunction {
             }
             return results;
         }
+        
+        @Override
+        public double getMaxBoundary() { return 0.0; }
+
+        @Override
+        public double getMinBoundary() { return Math.sqrt(0.5*Math.sqrt(2)); }
+        
+        @Override
+        public int getPointsPerValue() {
+            return 3;
+        }
     }, 
     
     D4 {
         @Override
         public double[] computeValues(int numValues, Point3D[] points) {
             // Calculate the cube root of the volume of the tetrahedron.
-            assert points.length == numValues * 4;
+            assert points.length >= numValues * 4;
             double[] results = new double[numValues];
             for (int i=0; i<numValues; i++) {
                 Vector3D va_d = Vector3D.sub(points[i*4+0],points[i*4+3]);
@@ -70,8 +103,25 @@ public enum ShapeFunction {
             }
             return results;
         }
+        
+        @Override
+        public double getMaxBoundary() { return 0.0; }
+
+        @Override
+        public double getMinBoundary() { return Math.cbrt(1.0/3.0); /*XXX: Not Sure...*/}
+        
+        @Override
+        public int getPointsPerValue() {
+            return 4;
+        }
     };
 
     public abstract double[] computeValues(int numValues, Point3D[] points);
+    
+    public abstract double getMaxBoundary();
+    
+    public abstract double getMinBoundary();
+    
+    public abstract int getPointsPerValue();
     
 }
