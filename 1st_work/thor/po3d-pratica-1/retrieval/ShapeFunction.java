@@ -25,10 +25,10 @@ public enum ShapeFunction {
         }
 
         @Override
-        public double getMaxBoundary() { return -1.0; }
+        public double getMinBoundary() { return -1.0; }
 
         @Override
-        public double getMinBoundary() { return 1.0; }
+        public double getMaxBoundary() { return 1.0; }
 
         @Override
         public int getPointsPerValue() {
@@ -50,10 +50,10 @@ public enum ShapeFunction {
         }
         
         @Override
-        public double getMaxBoundary() { return 0.0; }
+        public double getMinBoundary() { return 0.0; }
 
         @Override
-        public double getMinBoundary() { return Math.sqrt(3); }
+        public double getMaxBoundary() { return Math.sqrt(3); }
         
         @Override
         public int getPointsPerValue() {
@@ -77,10 +77,10 @@ public enum ShapeFunction {
         }
         
         @Override
-        public double getMaxBoundary() { return 0.0; }
+        public double getMinBoundary() { return 0.0; }
 
         @Override
-        public double getMinBoundary() { return Math.sqrt(0.5*Math.sqrt(2)); }
+        public double getMaxBoundary() { return Math.sqrt(0.5*Math.sqrt(2)); }
         
         @Override
         public int getPointsPerValue() {
@@ -105,10 +105,10 @@ public enum ShapeFunction {
         }
         
         @Override
-        public double getMaxBoundary() { return 0.0; }
+        public double getMinBoundary() { return 0.0; }
 
         @Override
-        public double getMinBoundary() { return Math.cbrt(1.0/3.0); /*XXX: Not Sure...*/}
+        public double getMaxBoundary() { return Math.cbrt(1.0/3.0); /*XXX: Not Sure...*/}
         
         @Override
         public int getPointsPerValue() {

@@ -29,7 +29,7 @@ public class ShapeDistribution {
     public void addSamples(double[] newValues) {
         //foreach sample: compute index; increment bin;
         final double distrIntervalLen_i = 1.0 / (_rightBound-_leftBound);
-        final int binsNum = _bins.size();
+        final int binsNum = _bins.size()-1;
         for (double val : newValues) {
             //if val <= leftbound -> 0
             //if val >= rightbound -> _bins.length-1

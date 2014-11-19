@@ -24,11 +24,14 @@ public class GenerateFeatureVectors {
     //TODO escrever shape distributions de um modelo para um ficheiro
     
     public static void main(String[] args) throws IllegalArgumentException, IOException {
-        final String modelFilename = args[0];
+        //final String modelFilename = args[0];
         final int shapeFunctionSamples = 1000000;
         final int shapeDistrBins = 64;
         
-        final String outputFilename = "featureVectors"+".txt";
+        String resultDirectory = "results/";
+        final String outputFilename = resultDirectory+"featureVectors"+".txt";
+        NormalizationMethod normMethod = NormalizationMethod.MEAN;
+        
         
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilename));
         
@@ -52,12 +55,14 @@ public class GenerateFeatureVectors {
             
             
             double[] a3Values = ShapeFunction.A3.computeValues(shapeFunctionSamples, points.toArray(new Point3D[0]));
-            ShapeDistribution a3Distr = NormalizationMethod.MAX.createShapeDistribution(ShapeFunction.A3, shapeDistrBins, a3Values);
-            writer.write("A3:");
+            ShapeDistribution a3Distr = normMethod.createShapeDistribution(ShapeFunction.A3, shapeDistrBins, a3Values);
+            writer.write("A3-"+normMethod.name()+":");
             for(Integer i: a3Distr.getBins()) {
                 writer.write(" "+i);
             }
             writer.write("\n");
+            BufferedImage img = ShapeDistributionDrawer.drawShapeDistribution(a3Distr);
+            ImageIO.write(img, "png", new File(resultDirectory+modelPath.getFileName().toString()+"-A3-"+normMethod.name()+"-"+".png"));
             
             Point3D barycenter = model.getBarycenter();
             Point3D[] d1Points = new Point3D[shapeFunctionSamples*2];
@@ -66,60 +71,49 @@ public class GenerateFeatureVectors {
                 d1Points[i*2+1] = points.get(i);
             }
             double[] d1Values = ShapeFunction.D2.computeValues(shapeFunctionSamples, d1Points);
-            ShapeDistribution d1Distr = NormalizationMethod.MAX.createShapeDistribution(ShapeFunction.D2, shapeDistrBins, d1Values);
-            writer.write("D1:");
+            ShapeDistribution d1Distr = normMethod.createShapeDistribution(ShapeFunction.D2, shapeDistrBins, d1Values);
+            writer.write("D1-"+normMethod.name()+":");
             for(Integer i: d1Distr.getBins()) {
                 writer.write(" "+i);
             }
             writer.write("\n");
+             img = ShapeDistributionDrawer.drawShapeDistribution(d1Distr);
+            ImageIO.write(img, "png", new File(resultDirectory+modelPath.getFileName().toString()+"-D1-"+normMethod.name()+"-"+".png"));
             
             double[] d2Values = ShapeFunction.D2.computeValues(shapeFunctionSamples, points.toArray(new Point3D[0]));
-            ShapeDistribution d2Distr = NormalizationMethod.MAX.createShapeDistribution(ShapeFunction.D2, shapeDistrBins, d2Values);
-            writer.write("D2:");
+            ShapeDistribution d2Distr = normMethod.createShapeDistribution(ShapeFunction.D2, shapeDistrBins, d2Values);
+            writer.write("D2-"+normMethod.name()+":");
             for(Integer i: d2Distr.getBins()) {
                 writer.write(" "+i);
             }
             writer.write("\n");
+             img = ShapeDistributionDrawer.drawShapeDistribution(d2Distr);
+            ImageIO.write(img, "png", new File(resultDirectory+modelPath.getFileName().toString()+"-D2-"+normMethod.name()+"-"+".png"));
             
             double[] d3Values = ShapeFunction.D3.computeValues(shapeFunctionSamples, points.toArray(new Point3D[0]));
-            ShapeDistribution d3Distr = NormalizationMethod.MAX.createShapeDistribution(ShapeFunction.D3, shapeDistrBins, d3Values);
-            writer.write("D3:");
+            ShapeDistribution d3Distr = normMethod.createShapeDistribution(ShapeFunction.D3, shapeDistrBins, d3Values);
+            writer.write("D3-"+normMethod.name()+":");
             for(Integer i: d3Distr.getBins()) {
                 writer.write(" "+i);
             }
             writer.write("\n");
+             img = ShapeDistributionDrawer.drawShapeDistribution(d3Distr);
+            ImageIO.write(img, "png", new File(resultDirectory+modelPath.getFileName().toString()+"-D3-"+normMethod.name()+"-"+".png"));
             
             double[] d4Values = ShapeFunction.D4.computeValues(shapeFunctionSamples, points.toArray(new Point3D[0]));
-            ShapeDistribution d4Distr = NormalizationMethod.MAX.createShapeDistribution(ShapeFunction.D4, shapeDistrBins, d4Values);
-            writer.write("D3:");
+            ShapeDistribution d4Distr = normMethod.createShapeDistribution(ShapeFunction.D4, shapeDistrBins, d4Values);
+            writer.write("D4-"+normMethod.name()+":");
             for(Integer i: d4Distr.getBins()) {
                 writer.write(" "+i);
             }
             writer.write("\n");
+             img = ShapeDistributionDrawer.drawShapeDistribution(d4Distr);
+            ImageIO.write(img, "png", new File(resultDirectory+modelPath.getFileName().toString()+"-D4-"+normMethod.name()+"-"+".png"));
             
             
         }
         
         writer.flush();
         writer.close();
-//        
-//        Model model = ModelIO.read(new File(modelFilename));
-//        Normalize.translation(model);
-//        Normalize.scale(model);
-//        
-//        final int requiredPointNum = shapeFunctionSamples * 2;
-//        UniformMeshSurfaceSampler sampler = new UniformMeshSurfaceSampler(model.getMeshes().get(0));
-//        ArrayList<Point3D> points = new ArrayList<Point3D>(requiredPointNum);
-//        for (int p = 0; p < requiredPointNum; p++) {
-//            points.add(sampler.getPoint());
-//        }
-//        
-//        double[] shapeFunctionValues = ShapeFunction.D2.computeValues(shapeFunctionSamples, points.toArray(new Point3D[0]));
-//        
-//        ShapeDistribution distr = new ShapeDistribution(shapeDistrBins, 0.0, Math.sqrt(3));
-//        distr.addSamples(shapeFunctionValues);
-//        
-//        BufferedImage img = ShapeDistributionDrawer.drawShapeDistribution(distr);
-//        ImageIO.write(img, "png", new File(outputFilename));
     }
 }
