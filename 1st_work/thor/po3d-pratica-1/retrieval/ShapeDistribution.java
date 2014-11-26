@@ -4,7 +4,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
-
+/**
+ * A shape distribution represents the PDF of a characteristic of a model.
+ * It keeps record, for an interval divided in a number of bins, the amount of samples
+ * whose value fell on that bin.
+ */
 public class ShapeDistribution {
     
     private final ArrayList<Integer> _bins;
@@ -41,6 +45,12 @@ public class ShapeDistribution {
         }
     }
     
+    /**
+     * Get an unmodifiable list containing the values of the bins of the distribution.
+     * <br/>
+     * Note: This method might be later modified to return a list of doubles between 0 and 1.
+     * @return the unmodifiable list
+     */
     public List<Integer> getBins() {
         return Collections.unmodifiableList(_bins);
     }

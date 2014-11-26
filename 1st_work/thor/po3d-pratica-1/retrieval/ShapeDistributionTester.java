@@ -21,10 +21,12 @@ public class ShapeDistributionTester {
         
         final String outputFilename = modelFilename+".distr"+".png";
         
+        //Load and normalize model.
         Model model = ModelIO.read(new File(modelFilename));
         Normalize.translation(model);
         Normalize.scale(model);
         
+        //Compute necessary points.
         final int requiredPointNum = shapeFunctionSamples * 2;
         UniformMeshSurfaceSampler sampler = new UniformMeshSurfaceSampler(model.getMeshes().get(0));
         ArrayList<Point3D> points = new ArrayList<Point3D>(requiredPointNum);
@@ -32,11 +34,14 @@ public class ShapeDistributionTester {
             points.add(sampler.getPoint());
         }
         
+        //Compute shape function values.
         double[] shapeFunctionValues = ShapeFunction.D2.computeValues(shapeFunctionSamples, points.toArray(new Point3D[0]));
         
+        //Create and fill shape distribution.
         ShapeDistribution distr = new ShapeDistribution(shapeDistrBins, 0.0, Math.sqrt(3));
         distr.addSamples(shapeFunctionValues);
         
+        //Create and saved visual representation of the shape distribution.
         BufferedImage img = ShapeDistributionDrawer.drawShapeDistribution(distr);
         ImageIO.write(img, "png", new File(outputFilename));
     }

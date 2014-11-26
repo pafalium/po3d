@@ -22,10 +22,19 @@ public class ShapeFunctionTester {
         final String modelD4Filename = modelFilename+".D4"+".png";
         final String modelA3Filename = modelFilename+".A3"+".png";
         
+        //Load and normalize model.
         Model model = ModelIO.read(new File(modelFilename));
         Normalize.translation(model);
         Normalize.scale(model);
         
+        /*
+         * Procedure for each test:
+         *  - Create point sampler.
+         *  - Generate necessary points.
+         *  - Compute shape function values.
+         *  - Draw the visual representation of the values.
+         *  - Save that representation.
+        */
         //Test D1
         testD1(numShapeFunctionSamples, modelD1Filename, model);
         //Test D2

@@ -20,7 +20,25 @@ import thor.model.io.ModelIO;
 import thor.modelanalysis.utils.Normalize;
 
 public class GenerateFeatureVectors {
-    
+    /**
+     * Compute the feature vectors for all the models in the input directory 
+     * and store them in the output directory.
+     * <br />
+     * A model feature vector is composed of the shape distributions for 
+     * every type of shape function.
+     * <br />
+     * All the feature vectors are stored in a txt file. Images for every
+     * computed shape distribution are also generated and saved.
+     * <br />
+     * The default input directory is "./model-samples" and the default
+     * output directory is "./results".
+     * <br />
+     * Usage: GenerateFeatureVectors [input-directory output-directory]
+     * <br />
+     * 
+     * @throws IllegalArgumentException when can't load a model
+     * @throws IOException when files are not found
+     */
     public static void main(String[] args) throws IllegalArgumentException, IOException {
 
         /*

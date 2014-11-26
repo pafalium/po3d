@@ -2,7 +2,14 @@ package retrieval;
 
 import java.util.Arrays;
 
+/**
+ * Enumeration of all the methods to normalize shape distributions for comparison. 
+ *
+ */
 public enum NormalizationMethod {
+    /**
+     * Normalize shape distributions by aligning the maximum value stored in them.
+     */
     MAX {
         public ShapeDistribution createShapeDistribution(ShapeFunction shapeFunction, int binNum, double[] values) {
             Arrays.sort(values);
@@ -12,7 +19,9 @@ public enum NormalizationMethod {
             return distr;
         }
     },
-    
+    /**
+     * Normalize shape distributions by aligning the mean value.
+     */
     MEAN {
         public ShapeDistribution createShapeDistribution(ShapeFunction shapeFunction, int binNum, double[] values) {
             Arrays.sort(values);
@@ -29,7 +38,9 @@ public enum NormalizationMethod {
             return distr;
         }
     },
-    
+    /**
+     * Normalize shape distributions by maximum and minimum value of the used shape function.
+     */
     DOMAIN {
         public ShapeDistribution createShapeDistribution(ShapeFunction shapeFunction, int binNum, double[] values) {
             ShapeDistribution distr = new ShapeDistribution(binNum, shapeFunction.getMinBoundary(), shapeFunction.getMaxBoundary());

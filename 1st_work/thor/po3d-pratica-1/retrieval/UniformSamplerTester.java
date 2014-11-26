@@ -23,6 +23,7 @@ public class UniformSamplerTester {
         String outputImageFile = modelFilename + ".png";
         String outputPointCloudFile = modelFilename + ".cloud" + ".png";
         
+        //Load and normalize model. 
         Model model = ModelIO.read(new File(modelFilename));
         Normalize.translation(model);
         Normalize.scale(model);

@@ -6,6 +6,7 @@ import thor.model.geoset.Mesh;
 import thor.model.geoset.Vertex;
 
 public enum ShapeFunction {
+    /** Angle between three points. */
     A3 {
         
         @Override
@@ -35,7 +36,7 @@ public enum ShapeFunction {
             return 3;
         }
     },
-    
+    /** Distance between two points.*/
     D2 {
         @Override
         public double[] computeValues(int numValues, Point3D[] points) {
@@ -60,7 +61,7 @@ public enum ShapeFunction {
             return 2;
         }
     },
-    
+    /**Square root of the area of the triangle between three points.*/
     D3 {
         @Override
         public double[] computeValues(int numValues, Point3D[] points) {
@@ -87,7 +88,7 @@ public enum ShapeFunction {
             return 3;
         }
     }, 
-    
+    /**Cube root of the volume of the tetrahedron between three points.*/
     D4 {
         @Override
         public double[] computeValues(int numValues, Point3D[] points) {
