@@ -6,16 +6,17 @@
     <property name="target" value="1.6" />
     <property name="source" value="1.6" />
 	
-	<property name="manifest.main.class" value="" />
+	<property name="manifest.main.class" value="retrieval.GenerateFeatureVectors" />
 	<property name="manifest.version.number" value="1" />
 	<property name="manifest.build.number" value="0" />
-	<property name="manifest.created.by" value="Pedro B. Pascoal" />
+	<property name="manifest.created.by" value="67079-70226" />
 
-	<property name="src.dir" value="model.viewer/" />
+	<property name="src.dir" value="po3d-pratica-1/" />
 	<property name="lib.dir" value="lib/" />
 	<property name="build.dir" value="bin/" />
 
-	<property name="package.file" value="thor-model-viewer-${manifest.version.number}.${manifest.build.number}.jar" />
+	<property name="package.file" value="projecto-po3d-67079-70226.jar" />
+	<!--<property name="package.file" value="projecto-po3d-67079-70226-${manifest.version.number}.${manifest.build.number}.jar" />-->
 	
 	<tstamp/><!-- needed for TODAY -->
 
@@ -36,7 +37,7 @@
 	<target name="init">
 		<mkdir dir="bin"/>
 		<copy includeemptydirs="false" todir="bin">
-			<fileset dir="model.viewer">
+			<fileset dir="${src.dir}">
 				<exclude name="**/*.launch"/>
 				<exclude name="**/*.java"/>
 			</fileset>
@@ -64,6 +65,7 @@
 		<pathconvert property="manifest.classpath" pathsep=" ">
 			<path refid="build.classpath" />
 			<flattenmapper />
+			<!--<globmapper from="${basedir}/*" to="./*" handledirsep="yes" />-->
 		</pathconvert>
 		
 		<!-- create the jar file -->
